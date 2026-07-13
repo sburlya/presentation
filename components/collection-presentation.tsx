@@ -287,11 +287,73 @@ function HeroOpening() {
   )
 }
 
-function RadialGauge({ label }: { label: string }) {
+function RadialGauge({ label, active = true }: { label: string; active?: boolean }) {
+  const r = 46
+  const c = 2 * Math.PI * r
+
   return (
     <div className="gauge" aria-hidden="true">
-      <span className="gauge-ring" />
-      <span className="gauge-label">{label}</span>
+      <svg viewBox="0 0 120 120" className="gauge-svg">
+        <circle cx="60" cy="60" r={r} className="gauge-track" />
+        <motion.circle
+          cx="60"
+          cy="60"
+          r={r}
+          className="gauge-progress"
+          fill="none"
+          strokeWidth="7"
+          strokeLinecap="round"
+          strokeDasharray={c}
+          style={{ transformOrigin: '60px 60px', rotate: -90 }}
+          initial={{ strokeDashoffset: c }}
+          animate={{ strokeDashoffset: active ? 0 : c }}
+          transition={{ duration: 2.1, ease, delay: 0.35 }}
+        />
+        <motion.circle
+          cx="60"
+          cy="60"
+          r={r}
+          className="gauge-progress gauge-progress--seal"
+          fill="none"
+          strokeWidth="7"
+          strokeDasharray="none"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: active ? 1 : 0 }}
+          transition={{ duration: 0.25, delay: 2.35 }}
+        />
+        <motion.circle
+          cx="60"
+          cy="60"
+          r={r}
+          className="gauge-glow"
+          fill="none"
+          strokeWidth="2"
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={
+            active
+              ? {
+                  opacity: [0.15, 0.55, 0.15],
+                  scale: [0.96, 1.06, 0.96],
+                }
+              : { opacity: 0, scale: 0.92 }
+          }
+          transition={{
+            duration: 2.8,
+            repeat: Infinity,
+            ease: 'easeInOut',
+            delay: 2.5,
+          }}
+          style={{ transformOrigin: '60px 60px' }}
+        />
+      </svg>
+      <motion.span
+        className="gauge-label"
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: active ? 1 : 0, y: active ? 0 : 5 }}
+        transition={{ delay: 0.9, duration: 0.55, ease }}
+      >
+        {label}
+      </motion.span>
     </div>
   )
 }
