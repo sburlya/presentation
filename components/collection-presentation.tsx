@@ -805,6 +805,7 @@ export function CollectionPresentation() {
   const [playing, setPlaying] = useState(true)
   const [tick, setTick] = useState(0)
   const touchStart = useRef(0)
+  const touchStartY = useRef(0)
   const wheelLock = useRef(false)
   const mx = useMotionValue(0)
   const my = useMotionValue(0)
@@ -868,10 +869,24 @@ export function CollectionPresentation() {
       }}
       onTouchStart={(e) => {
         touchStart.current = e.touches[0].clientX
+        touchStartY.current = e.touches[0].clientY
       }}
       onTouchEnd={(e) => {
-        const d = touchStart.current - e.changedTouches[0].clientX
-        if (Math.abs(d) > 48) (d > 0 ? next() : prev())
+        const dx = touchStart.current - e.changedTouches[0].clientX
+        const dy = touchStartY.current - e.changedTouches[0].clientY
+        if (Math.abs(dx) < 56) return
+        if (Math.abs(dx) < Math.abs(dy) * 1.2) return
+
+        const target = e.target as HTMLElement
+        const metricGrid = target.closest('.metric-grid') as HTMLElement | null
+        if (metricGrid && metricGrid.scrollWidth > metricGrid.clientWidth + 4) {
+          if (dx > 0 && metricGrid.scrollLeft < metricGrid.scrollWidth - metricGrid.clientWidth - 6) {
+            return
+          }
+          if (dx < 0 && metricGrid.scrollLeft > 6) return
+        }
+
+        dx > 0 ? next() : prev()
       }}
     >
       <div className="mesh layer-far" aria-hidden="true" />
